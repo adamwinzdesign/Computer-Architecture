@@ -7,12 +7,26 @@ class CPU:
 
     def __init__(self):
         """Construct a new CPU."""
-        pass
+
+        # init ram
+        self.ram = [0] * 256
+
+        # init register
+        self.reg = [0] * 8
+
+        # init program counter
+        self.pc = 0
+
+        # Memory Address Register
+        self.MAR = 0
+
+        # Memory Data Register
+        self.MDR = 0
 
     def load(self):
         """Load a program into memory."""
 
-        address = 0
+        self.MAR = 0
 
         # For now, we've just hardcoded a program:
 
@@ -26,9 +40,13 @@ class CPU:
             0b00000001, # HLT
         ]
 
-        for instruction in program:
-            self.ram[address] = instruction
-            address += 1
+        # for instruction in program:
+        #     self.ram_write(instruction, address)
+        #     address += 1
+        while self.MAR < len(program):
+            self.MDR = program[self.MAR]
+            self.ram_write(self.MDR, self.MAR)
+            self.MAR += 1
 
 
     def alu(self, op, reg_a, reg_b):
@@ -62,4 +80,30 @@ class CPU:
 
     def run(self):
         """Run the CPU."""
-        pass
+        running = True
+        while running:
+            instruction_register = self.ram_read(self.pc)
+
+            if instruction_register == 0b10000010:
+                # self.reg[self.ram_read(self.pc + 1)] = self.ram_read(self.pc + 2)
+                self.MAR = self.ram_read(self.pc + 1)
+                self.MDR = self.ram_read(self.pc + 2)
+                self.reg[self.MAR] = self.MDR
+                self.pc += 3
+            elif instruction_register == 0b01000111:
+                # print(self.reg[self.ram_read(self.pc + 1)])
+                self.MAR = self.ram_read(self.pc + 1)
+                print(self.reg[self.MAR])
+                self.pc += 2
+            elif instruction_register == 0b00000001:
+                running = False
+                self.pc += 1
+            else: 
+                print(f'Unknown instruction {instruction_register} at address {self.pc}')
+                sys.exit(1)
+
+    def ram_read(self, memory_address):
+        return self.ram[memory_address]
+
+    def ram_write(self, memory_data, memory_address):
+        self.ram[memory_address] = memory_data
