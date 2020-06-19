@@ -54,16 +54,14 @@ class CPU:
         #         self.ram_write(self.MDR, self.MAR)
         #         self.MAR += 1
 
-        with open(filename) as program:
-            for line in program:
-                # separate out the # character
+        with open(filename) as file:
+            for line in file:
                 line = line.split('#')
-                # remove space at 0 index
-                line = line[0].strip
-
-                if line == '':
+                try:
+                    self.MDR = int(line[0], 2)
+                except ValueError:
                     continue
-                self.RAM[self.MAR] = int(line, 2)
+                self.ram_write(self.MDR, self.MAR)
                 self.MAR += 1
 
     def alu(self, op, reg_a, reg_b):
@@ -116,16 +114,16 @@ class CPU:
 
             if self.IR == LDI:
                 # self.reg[self.ram_read(self.pc + 1)] = self.ram_read(self.pc + 2)
-                self.MAR = self.ram_read(self.pc + 1)
-                self.MDR = self.ram_read(self.pc + 2)
+                self.MAR = self.ram_read(self.PC + 1)
+                self.MDR = self.ram_read(self.PC + 2)
                 self.REG[self.MAR] = self.MDR
                 self.PC += 3
 
             elif self.IR == CALL:
-                # cals a function at the address stored in the register
+                # calls a function at the address stored in the register
                 self.SP -= 1
                 self.RAM[self.SP] = self.PC + 2
-                self.PC = self.REG[self.ram_read(self.pc + 1)]
+                self.PC = self.REG[self.ram_read(self.PC + 1)]
 
             elif self.IR == RET:
                 self.PC = self.RAM[self.SP]
@@ -133,24 +131,24 @@ class CPU:
 
             elif self.IR == PUSH:
                 self.SP -= 1
-                self.RAM[self.SP] = self.REG[self.ram_read(self.pc + 1)]
+                self.RAM[self.SP] = self.REG[self.ram_read(self.PC + 1)]
                 self.PC += 2
 
             elif self.IR == POP:
-                self.REG[self.ram_read(self.pc + 1)] = self.RAM[self.SP]
+                self.REG[self.ram_read(self.PC + 1)] = self.RAM[self.SP]
                 self.SP += 1
                 self.PC += 2
 
             elif self.IR == MUL:
-                self.alu('MUL', self.ram_read(self.pc + 1), self.ram_read(self.pc + 2))
-                self.pc += 3
+                self.alu('MUL', self.ram_read(self.PC + 1), self.ram_read(self.PC + 2))
+                self.PC += 3
 
             elif self.IR == ADD:
-                self.alu('ADD', self.ram_read(self.pc + 1), self.ram_read(self.pc + 2))
+                self.alu('ADD', self.ram_read(self.PC + 1), self.ram_read(self.PC + 2))
                 self.PC += 3
 
             elif self.IR == CMP:
-                self.alu('CMP', self.ram_read(self.pc + 1), self.ram_read(self.pc + 2))
+                self.alu('CMP', self.ram_read(self.PC + 1), self.ram_read(self.PC + 2))
                 self.PC += 3
 
             elif self.IR == JMP:
@@ -171,9 +169,9 @@ class CPU:
                     self.PC += 2
 
             elif self.IR == PRN:
-                self.MAR = self.ram_read(self.pc + 1)
-                print(self.reg[self.MAR])
-                self.pc += 2
+                self.MAR = self.ram_read(self.PC + 1)
+                print(self.REG[self.MAR])
+                self.PC += 2
 
             elif self.IR == HLT:
                 running = False
