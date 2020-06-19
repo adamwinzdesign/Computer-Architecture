@@ -64,6 +64,8 @@ class CPU:
             self.REG[reg_a] *= self.REG[reg_b]
         # Compare ops
         elif op == 'CMP':
+            # Flag bits: 00000LGE
+            # Set to 1 if values at the given register are less than, greater than, or equal, respectively.
             # if equal, flag 1
             if self.REG[reg_a] == self.REG[reg_b]:
                 self.FLAG = 0b00000001
@@ -112,6 +114,8 @@ class CPU:
 
             elif self.IR == CALL:
                 # calls a function at the address stored in the register
+                # address of the instruction after call is pushed to the stack
+                # we then set PC to the address stored in the given register
                 self.SP -= 1
                 self.RAM[self.SP] = self.PC + 2
                 self.PC = self.REG[self.ram_read(self.PC + 1)]
