@@ -45,15 +45,6 @@ class CPU:
         self.MAR = 0
         filename = sys.argv[1]
 
-        # with open(program) as file:
-        #     for line in file:
-        #         # skip line breaks and comments:
-        #         if line[0] is '#' or line[0] is '\n':
-        #             continue
-        #         self.MDR = int(line[:8], 2)
-        #         self.ram_write(self.MDR, self.MAR)
-        #         self.MAR += 1
-
         with open(filename) as file:
             for line in file:
                 line = line.split('#')
